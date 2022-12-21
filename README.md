@@ -1,4 +1,4 @@
-# zevoy_assignment
+# assignment
 
 ## To run:
 `go run cmd/main.go`
