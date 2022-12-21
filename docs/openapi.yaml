@@ -1,0 +1,103 @@
+openapi: 3.0.3
+info:
+  title: image-upload
+  version: beta
+  description: |-
+    demo application to upload receipts and download
+
+servers:
+  - url: https://localhost:8080/api/v1
+
+paths:
+  /images:
+    get:
+      summary: index image ids
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseGet'
+
+  /image/{id}:
+    get:
+      summary: Get the image by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: width
+          description: width of the image
+          schema:
+            type: integer
+            default: 0
+
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: image width not supported
+        '404':
+          description: image id not found
+
+  /image:
+    post:
+      summary: Upload an image (jpeg/png)
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RequestData'
+            encoding:
+              file:
+                contentType: image/jpeg, image/png
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseCreate'
+        '502':
+          description: no file received
+        '400':
+          description: invalid image type or error with image upload
+
+
+
+components:
+  schemas:
+    ResponseCreate:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+
+    ResponseGet:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResponseCreate'
+            
+    RequestData:
+      type: object
+      properties:
+        # The property name 'file' will be used for all files.
+        file:
+          type: string
+          format: binary
+          
+
